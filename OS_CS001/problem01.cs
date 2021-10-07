@@ -4,13 +4,19 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Collections.Generic; 
+using System.Linq;
 
 namespace Problem01
 {
     class Program
     {
-        static byte[] Data_Global = new byte[1000000000];
-        static long Sum_Global = 0;
+        static List<Thread> threadLists = new List<Thread>();
+        static int MAX = 1000000000;
+        static int threadSize = 32;
+        static int batchSize = MAX / threadSize;
+        static byte[] Data_Global = new byte[MAX];
+        static long[] Sum_Global = new long[threadSize];
         static int G_index = 0;
 
         static int ReadData()
@@ -19,9 +25,9 @@ namespace Problem01
             FileStream fs = new FileStream("Problem01.dat", FileMode.Open);
             BinaryFormatter bf = new BinaryFormatter();
 
-            try 
+            try
             {
-                Data_Global = (byte[]) bf.Deserialize(fs);
+                Data_Global = (byte[])bf.Deserialize(fs);
             }
             catch (SerializationException se)
             {
@@ -35,31 +41,56 @@ namespace Problem01
 
             return returnData;
         }
-        static void sum()
+        static void makeThread() 
         {
-            if (Data_Global[G_index] % 2 == 0)
+            for(int i = 0; i < threadSize; ++i)
             {
-                Sum_Global -= Data_Global[G_index];
+                int tid = i;
+                int start = i * batchSize;
+                int stop = (i+1) * batchSize;
+                Thread newThread = new Thread(() => sum(start, stop, tid));
+                newThread.Start();
+                threadLists.Add(newThread);
             }
-            else if (Data_Global[G_index] % 3 == 0)
+            Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
+        }
+
+        static void joinThread()
+        {
+            foreach(Thread t in threadLists)
             {
-                Sum_Global += (Data_Global[G_index]*2);
+                t.Join();
             }
-            else if (Data_Global[G_index] % 5 == 0)
+        }
+        static void sum(int start, int stop, int tid)
+        {
+            for (int index = start; index < stop; ++index)
             {
-                Sum_Global += (Data_Global[G_index] / 2);
+                
+                if (Data_Global[index] % 2 == 0)
+                {
+                    Sum_Global[tid] -= Data_Global[index];
+                }
+                else if (Data_Global[index] % 3 == 0)
+                {
+                    Sum_Global[tid] += (Data_Global[index] * 2);
+                }
+                else if (Data_Global[index] % 5 == 0)
+                {
+                    Sum_Global[tid] += (Data_Global[index] / 2);
+                }
+                else if (Data_Global[index] % 7 == 0)
+                {
+                    Sum_Global[tid] += (Data_Global[index] / 3);
+                }
+                Data_Global[index] = 0;
+                //G_index++;
             }
-            else if (Data_Global[G_index] %7 == 0)
-            {
-                Sum_Global += (Data_Global[G_index] / 3);
-            }
-            Data_Global[G_index] = 0;
-            G_index++;   
         }
         static void Main(string[] args)
         {
             Stopwatch sw = new Stopwatch();
-            int i, y;
+            int y;
 
             /* Read data from file */
             Console.Write("Data read...");
@@ -73,16 +104,31 @@ namespace Problem01
                 Console.WriteLine("Read Failed!");
             }
 
+
             /* Start */
             Console.Write("\n\nWorking...");
             sw.Start();
-            for (i = 0; i < 1000000000; i++)
-                sum();
+            
+            //makeThread();
+            //joinThread();
+            for(int i = 0; i < threadSize; ++i)
+            {
+                int tid = i;
+                int start = i * batchSize;
+                int stop = (i+1) * batchSize;
+                Thread newThread = new Thread(() => sum(start, stop, tid));
+                newThread.Start();
+                threadLists.Add(newThread);
+            }
+            foreach(Thread t in threadLists)
+            {
+                t.Join();
+            }
             sw.Stop();
             Console.WriteLine("Done.");
 
             /* Result */
-            Console.WriteLine("Summation result: {0}", Sum_Global);
+            Console.WriteLine("Summation result: {0}", Sum_Global.Sum());
             Console.WriteLine("Time used: " + sw.ElapsedMilliseconds.ToString() + "ms");
         }
     }
