@@ -13,10 +13,10 @@ namespace Problem01
     {
         static List<Thread> threadLists = new List<Thread>();
         static int MAX = 1000000000;
-        static int threadSize = 4;
+        static int threadSize = 32;
         static int batchSize = MAX / threadSize;
         static byte[] Data_Global = new byte[MAX];
-        static long[] Sum_Global = new long[threadSize];
+        static long Sum_Global = 0;
         static int G_index = 0;
 
         static int ReadData()
@@ -45,10 +45,9 @@ namespace Problem01
         {
             for(int i = 0; i < threadSize; ++i)
             {
-                int tid = i;
                 int start = i * batchSize;
                 int stop = (i+1) * batchSize;
-                Thread newThread = new Thread(() => sum(start, stop, tid));
+                Thread newThread = new Thread(() => sum(start, stop));
                 newThread.Start();
                 threadLists.Add(newThread);
             }
@@ -59,10 +58,9 @@ namespace Problem01
         {
             for(int i = 0; i < threadSize; ++i)
             {
-                int tid = i;
                 int start = i * batchSize;
                 int stop = (i+1) * batchSize;
-                Thread newThread = new Thread(() => sum(start, stop, tid));
+                Thread newThread = new Thread(() => sum(start, stop));
                 threadLists.Add(newThread);
             }
             Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
@@ -83,30 +81,32 @@ namespace Problem01
                 t.Join();
             }
         }
-        static void sum(int start, int stop, int tid)
+        static void sum(int start, int stop)
         {
+            long temp = 0;
             for (int index = start; index < stop; ++index)
             {
                 
                 if (Data_Global[index] % 2 == 0)
                 {
-                    Sum_Global[tid] -= Data_Global[index];
+                    temp -= Data_Global[index];
                 }
                 else if (Data_Global[index] % 3 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] * 2);
+                    temp += (Data_Global[index] * 2);
                 }
                 else if (Data_Global[index] % 5 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] / 2);
+                    temp += (Data_Global[index] / 2);
                 }
                 else if (Data_Global[index] % 7 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] / 3);
+                    temp += (Data_Global[index] / 3);
                 }
                 Data_Global[index] = 0;
                 //G_index++;
             }
+            Sum_Global += temp;
         }
         static void Main(string[] args)
         {
@@ -129,27 +129,29 @@ namespace Problem01
             Console.Write("\n\nWorking...");
             sw.Start();
             
-            Thread a = new Thread(() => sum(0, 250000000, 0));
-            Thread b = new Thread(() => sum(250000000, 500000000, 1));
-            Thread c = new Thread(() => sum(500000000, 750000000, 2));
-            Thread d = new Thread(() => sum(750000000, 1000000000, 3));
+            // Thread a = new Thread(() => sum(0, 250000000, 0));
+            // Thread b = new Thread(() => sum(250000000, 500000000, 1));
+            // Thread c = new Thread(() => sum(500000000, 750000000, 2));
+            // Thread d = new Thread(() => sum(750000000, 1000000000, 3));
 
-            a.Start();
-            b.Start();
-            c.Start();
-            d.Start();
+            // a.Start();
+            // b.Start();
+            // c.Start();
+            // d.Start();
 
-            a.Join();
-            b.Join();
-            c.Join();
-            d.Join();
+            // a.Join();
+            // b.Join();
+            // c.Join();
+            // d.Join();
+            makeThreadStart();
+            joinThread();
 
 
             sw.Stop();
             Console.WriteLine("Done.");
 
             /* Result */
-            Console.WriteLine("Summation result: {0}", Sum_Global.Sum());
+            Console.WriteLine("Summation result: {0}", Sum_Global);
             Console.WriteLine("Time used: " + sw.ElapsedMilliseconds.ToString() + "ms");
         }
     }
