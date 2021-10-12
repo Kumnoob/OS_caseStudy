@@ -11,9 +11,10 @@ namespace Problem01
 {
     class Program
     {
+        static Semaphore semaphoreObject = new Semaphore(initialCount: 1, maximumCount: 1, name: "semaphore");
         static List<Thread> threadLists = new List<Thread>();
         static int MAX = 1000000000;
-        static int threadSize = 32;
+        static int threadSize = 4;
         static int batchSize = MAX / threadSize;
         static byte[] Data_Global = new byte[MAX];
         static long Sum_Global = 0;
@@ -106,7 +107,9 @@ namespace Problem01
                 Data_Global[index] = 0;
                 //G_index++;
             }
+            semaphoreObject.WaitOne();
             Sum_Global += temp;
+            semaphoreObject.Release();
         }
         static void Main(string[] args)
         {

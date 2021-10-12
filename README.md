@@ -26,9 +26,9 @@ This repository is a part of ***OPERATING SYSTEMS*** KMITL 2021
 
 ## Method 2 
 
-- ใช้ Sum_Global เป็น array ที่มีขนาดเท่ากับจำนวน thread
-- ทำการแบ่ง Data_Global ออกเป็นส่วนๆโดยมีขนาดเท่ากับจำนวน thread
-- แต่ละthread จะทำการบวกค่าในส่วนของตัวเองเมื่อบวกเสร็จก็เก็บค่าไว้ที่ Sum_Global array ใน index ของ thread ตัวเอง
+- ใช้ ***Sum_Global*** เป็น array ที่มีขนาดเท่ากับจำนวน thread
+- ทำการแบ่ง ***Data_Global*** ออกเป็นส่วนๆโดยมีขนาดเท่ากับจำนวน thread
+- แต่ละ thread จะทำการบวกค่าในส่วนของตัวเองเมื่อบวกเสร็จก็เก็บค่าไว้ที่ ***Sum_Global***l array ใน index ของ thread ตัวเอง
 - ทำ function ไว้สร้าง thread และ join thread
 - เก็บ thread ที่สร้างไว้ใน Lists
 
@@ -105,10 +105,10 @@ static void sum(int start, int stop, int tid)
 
 ## Method 3 
 
-- ทำการแบ่ง Data_Global ออกเป็นส่วนๆโดยมีขนาดเท่ากับจำนวน thread
-- ใน function sum มีตัวแปร local variable ไว้บวกค่าจาก Data_Global
+- ทำการแบ่ง ***Data_Global*** ออกเป็นส่วนๆโดยมีขนาดเท่ากับจำนวน thread
+- ใน function ***sum*** มีตัวแปร local variable ไว้บวกค่าจาก ***Data_Global***
 - แต่ละthread จะทำการบวกค่าในส่วนของตัวเองเมื่อบวกเสร็จก็เก็บค่าไว้ที่ local variable 
-- หลังจากบวกค่าเสร็จจะบวกค่าจาก local variable เข้าไปใน static variable Sum_Global
+- หลังจากบวกค่าเสร็จจะบวกค่าจาก local variable เข้าไปใน static variable ***Sum_Global***
 
 ```
 static void makeThreadStart() 
@@ -174,5 +174,49 @@ static void sum(int start, int stop)
 
 ## Method 4
 
-- แก้ปัญหาจาก Method 3
-- 
+- แก้ปัญหาจาก **Method 3**
+- ใช้ Semaphore เพื่อให้แต่ละ thread เข้าไปบวกค่าใน static variable Sum_Global ได้ทีละ 1 thread
+- กำหนด Semaphore เริ่มต้น 1 มากสุด 1
+
+```
+static Semaphore semaphoreObject = new Semaphore(initialCount: 1, maximumCount: 1, name: "semaphore");
+```
+```
+static void sum(int start, int stop)
+{
+    long temp = 0;
+    for (int index = start; index < stop; ++index)
+    {
+        
+        if (Data_Global[index] % 2 == 0)
+        {
+            temp -= Data_Global[index];
+        }
+        else if (Data_Global[index] % 3 == 0)
+        {
+            temp += (Data_Global[index] * 2);
+        }
+        else if (Data_Global[index] % 5 == 0)
+        {
+            temp += (Data_Global[index] / 2);
+        }
+        else if (Data_Global[index] % 7 == 0)
+        {
+            temp += (Data_Global[index] / 3);
+        }
+        Data_Global[index] = 0;
+        //G_index++;
+    }
+    semaphoreObject.WaitOne();
+    Sum_Global += temp;
+    semaphoreObject.Release();
+}
+```
+
+### Summary :
+
+**ผลลัพธ์ :** ถูกต้อง
+
+**เวลา   :** ช้ากว่า **Method 3**
+
+---
