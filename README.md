@@ -1,6 +1,6 @@
 [![Github](https://img.shields.io/github/followers/chuckboliver?label=chuckboliver&logoColor=pink&style=social)](https://github.com/chuckboliver)
 
-# OS_caseStudy
+# OS Case study
 This repository is a part of ***OPERATING SYSTEMS*** KMITL 2021
 
 ---
@@ -46,7 +46,8 @@ static void makeThreadStart()
     }
     Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
 }
-
+```
+```
 static void joinThread()
 {
     foreach(Thread t in threadLists)
@@ -55,8 +56,35 @@ static void joinThread()
     }
 }
 ```
+```
+static void sum(int start, int stop, int tid)
+{
+    for (int index = start; index < stop; ++index)
+    {
+        
+        if (Data_Global[index] % 2 == 0)
+        {
+            Sum_Global[tid] -= Data_Global[index];
+        }
+        else if (Data_Global[index] % 3 == 0)
+        {
+            Sum_Global[tid] += (Data_Global[index] * 2);
+        }
+        else if (Data_Global[index] % 5 == 0)
+        {
+            Sum_Global[tid] += (Data_Global[index] / 2);
+        }
+        else if (Data_Global[index] % 7 == 0)
+        {
+            Sum_Global[tid] += (Data_Global[index] / 3);
+        }
+        Data_Global[index] = 0;
+        //G_index++;
+    }
+}
+```
 
-### Result
+### Result :
 
 | Threads | Times(ms) |
 | --------|-------- |
@@ -67,7 +95,7 @@ static void joinThread()
 | 16       | 6627.333|
 | 32      | 5750|
 
-### Summary
+### Summary :
 
 **ผลลัพธ์ :** ถูกต้อง
 
@@ -81,8 +109,6 @@ static void joinThread()
 - ใน function sum มีตัวแปร local variable ไว้บวกค่าจาก Data_Global
 - แต่ละthread จะทำการบวกค่าในส่วนของตัวเองเมื่อบวกเสร็จก็เก็บค่าไว้ที่ local variable 
 - หลังจากบวกค่าเสร็จจะบวกค่าจาก local variable เข้าไปใน static variable Sum_Global
-- ทำ function ไว้สร้าง thread และ join thread
-- เก็บ thread ที่สร้างไว้ใน Lists
 
 ```
 static void makeThreadStart() 
@@ -127,7 +153,7 @@ static void sum(int start, int stop)
     Sum_Global += temp;
 }
 ```
-### Result
+### Result :
 
 | Threads | Times(ms) |
 | --------|-------- |
@@ -138,10 +164,15 @@ static void sum(int start, int stop)
 | 16       | 2925|
 | 32      | 3084.667|
 
-### Summary
+### Summary :
 
 **ผลลัพธ์ :** ผิดพลาด(เมื่อthread มีจำนวนมาก)
 
 **เวลา   :** เร็วขึ้นมากกว่า **Method 2**
 
 ---
+
+## Method 4
+
+- แก้ปัญหาจาก Method 3
+- 
