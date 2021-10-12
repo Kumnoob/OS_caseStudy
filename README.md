@@ -268,3 +268,44 @@ static void sum(int start, int stop)
 **เวลา   :** ช้ากว่า **Method 3**, **Method 4**
 
 ---
+
+## Method 6 :
+
+- นำ **Method4** มาต่อยอด
+- ใช้ ThreadPool มาช่วยในการจัดการ thread 
+- โดยปกติใน .NET framework ได้รับ request จากการเรียก method ก็ทำการสร้าง thread object ในหน่วยความจำ จากนั้นก็ทำ task ที่ได้รับมา
+  เมื่อ task เสร็จ garbage collector ก็จะ clear thread object ออกจากหน่วยความจำเพื่อคืนพื้นที่ 
+> request เยอะ = .NET framework สร้าง thread object เยอะ (จองพื้นที่ในหน่วยความจำ) = ช้า
+
+- ThreadPool คือ Collections ของ thread หลังจาก thread ทำงานเสร็จ thread จะถูกส่งไปที่ pool(ไม่ส่งไป garbage collector) เพื่อรอการใช้งาน ก็คือสามารถ reused thread ได้ ไม่ต้องสร้าง thread ใหม่
+  
+```
+static void sumCallback(int start, int stop, CountdownEvent evt)
+{
+    sum(start, stop);
+    evt.Signal();
+}
+```
+```
+static void MakeThreadPool()
+{
+    Console.WriteLine("\nCreate {0} threads.", threadSize);
+    using(CountdownEvent counter = new CountdownEvent(threadSize))
+    {
+        for(int i = 0; i < threadSize; ++i)
+        {
+            int start = i * batchSize;
+            int stop = (i+1) * batchSize;
+            ThreadPool.QueueUserWorkItem(callBack => sumCallback(start, stop, counter));
+        }
+        counter.Wait();
+        Console.WriteLine("All threads finish execution.");
+    }
+}
+```
+
+### Summary :
+
+**ผลลัพธ์ :** ถูกต้อง
+
+**เวลา   :** เร็ว
