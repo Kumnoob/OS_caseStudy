@@ -220,3 +220,51 @@ static void sum(int start, int stop)
 **เวลา   :** ช้ากว่า **Method 3**
 
 ---
+
+## Method 5
+
+- แก้ปัญหาจาก **Method 3**
+- ใช้ Mutex เพื่อให้แต่ละ thread เข้าไปบวกค่าใน static variable Sum_Global ได้ทีละ 1 thread
+  
+```
+static Mutex mutex = new Mutex();
+```
+```
+static void sum(int start, int stop)
+{
+    long temp = 0;
+    for (int index = start; index < stop; ++index)
+    {
+        
+        if (Data_Global[index] % 2 == 0)
+        {
+            temp -= Data_Global[index];
+        }
+        else if (Data_Global[index] % 3 == 0)
+        {
+            temp += (Data_Global[index] * 2);
+        }
+        else if (Data_Global[index] % 5 == 0)
+        {
+            temp += (Data_Global[index] / 2);
+        }
+        else if (Data_Global[index] % 7 == 0)
+        {
+            temp += (Data_Global[index] / 3);
+        }
+        Data_Global[index] = 0;
+        //G_index++;
+    }
+    mutex.WaitOne();
+    Sum_Global += temp;
+    mutex.ReleaseMutex();
+}
+```
+
+### Summary :
+
+**ผลลัพธ์ :** ถูกต้อง
+
+**เวลา   :** ช้ากว่า **Method 3**, **Method 4**
+
+---
