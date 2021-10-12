@@ -1,7 +1,7 @@
 [![Github](https://img.shields.io/github/followers/chuckboliver?label=chuckboliver&logoColor=pink&style=social)](https://github.com/chuckboliver)
 
 # OS_caseStudy
-This repository is a part of OPERATING SYSTEMS KMITL 2021
+This repository is a part of ***OPERATING SYSTEMS*** KMITL 2021
 
 1.) **Original**
 ```
@@ -48,68 +48,11 @@ static void joinThread()
 
 ### Result
 
-- 1 thread
-```
-Summation result: 888701676
-Time used: 21845ms
-Summation result: 888701676
-Time used: 21558ms
-Summation result: 888701676
-Time used: 21933ms
-Average time used: 21778.667ms
-```
-
-- 2 threads
-```
-Summation result: 888701676
-Time used: 12700ms
-Summation result: 888701676
-Time used: 12678ms
-Summation result: 888701676
-Time used: 12269ms
-Average time used: 12549ms
-```
-
-- 4 threads
-```
-Summation result: 888701676
-Time used: 9710ms
-Summation result: 888701676
-Time used: 9453ms
-Summation result: 888701676
-Time used: 9676ms
-Average time used: 9613ms
-```
-
-- 8 threads
-```
-Summation result: 888701676
-Time used: 8840ms
-Summation result: 888701676
-Time used: 9139ms
-Summation result: 888701676
-Time used: 8943ms
-Average time used: 8974ms
-```
-
-- 16 threads
-```
-Summation result: 888701676
-Time used: 6833ms
-Summation result: 888701676
-Time used: 6394ms
-Summation result: 888701676
-Time used: 6655ms
-Average time used: 6627.333ms
-```
-
-- 32 threads
-```
-Summation result: 888701676
-Time used: 5646ms
-Summation result: 888701676
-Time used: 5802ms
-Summation result: 888701676
-Time used: 5802ms
-Average time used: 5750ms
-```
+| Threads | Times(ms) |
+| --------|-------- |
+| 1       | 21778.667|
+| 2       |12549|
+| 4       | 9613|
+| 8       | 8974|
+| 16       | 6627.333|
+| 32      | 5750|

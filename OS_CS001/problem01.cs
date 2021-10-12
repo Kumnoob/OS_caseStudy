@@ -13,7 +13,7 @@ namespace Problem01
     {
         static List<Thread> threadLists = new List<Thread>();
         static int MAX = 1000000000;
-        static int threadSize = 2;
+        static int threadSize = 4;
         static int batchSize = MAX / threadSize;
         static byte[] Data_Global = new byte[MAX];
         static long[] Sum_Global = new long[threadSize];
@@ -41,7 +41,7 @@ namespace Problem01
 
             return returnData;
         }
-        static void makeThread() 
+        static void makeThreadStart() 
         {
             for(int i = 0; i < threadSize; ++i)
             {
@@ -53,6 +53,27 @@ namespace Problem01
                 threadLists.Add(newThread);
             }
             Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
+        }
+
+        static void makeThread()
+        {
+            for(int i = 0; i < threadSize; ++i)
+            {
+                int tid = i;
+                int start = i * batchSize;
+                int stop = (i+1) * batchSize;
+                Thread newThread = new Thread(() => sum(start, stop, tid));
+                threadLists.Add(newThread);
+            }
+            Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
+        }
+
+        static void startThread()
+        {
+            foreach(Thread t in threadLists)
+            {
+                t.Start();
+            }
         }
 
         static void joinThread()
@@ -104,13 +125,25 @@ namespace Problem01
                 Console.WriteLine("Read Failed!");
             }
 
-
             /* Start */
             Console.Write("\n\nWorking...");
             sw.Start();
             
-            makeThread();
-            joinThread();
+            Thread a = new Thread(() => sum(0, 250000000, 0));
+            Thread b = new Thread(() => sum(250000000, 500000000, 1));
+            Thread c = new Thread(() => sum(500000000, 750000000, 2));
+            Thread d = new Thread(() => sum(750000000, 1000000000, 3));
+
+            a.Start();
+            b.Start();
+            c.Start();
+            d.Start();
+
+            a.Join();
+            b.Join();
+            c.Join();
+            d.Join();
+
 
             sw.Stop();
             Console.WriteLine("Done.");
