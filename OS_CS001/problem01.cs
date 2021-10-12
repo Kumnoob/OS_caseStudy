@@ -13,7 +13,7 @@ namespace Problem01
     {
         static List<Thread> threadLists = new List<Thread>();
         static int MAX = 1000000000;
-        static int threadSize = 32;
+        static int threadSize = 2;
         static int batchSize = MAX / threadSize;
         static byte[] Data_Global = new byte[MAX];
         static long[] Sum_Global = new long[threadSize];
@@ -109,21 +109,9 @@ namespace Problem01
             Console.Write("\n\nWorking...");
             sw.Start();
             
-            //makeThread();
-            //joinThread();
-            for(int i = 0; i < threadSize; ++i)
-            {
-                int tid = i;
-                int start = i * batchSize;
-                int stop = (i+1) * batchSize;
-                Thread newThread = new Thread(() => sum(start, stop, tid));
-                newThread.Start();
-                threadLists.Add(newThread);
-            }
-            foreach(Thread t in threadLists)
-            {
-                t.Join();
-            }
+            makeThread();
+            joinThread();
+
             sw.Stop();
             Console.WriteLine("Done.");
 
