@@ -1,16 +1,15 @@
-# OS_caseStudy
+[![Github](https://img.shields.io/github/followers/chuckboliver?label=chuckboliver&logoColor=pink&style=social)](https://github.com/chuckboliver)
 
+# OS_caseStudy
 This repository is a part of OPERATING SYSTEMS KMITL 2021
 
-1.
-
+1.) **Original**
 ```
     Summation result: 888701676
     Time used: 24172ms
 ```
 
-1. 2 threads
-
+2.) **2 threads**
 ```
     Summation result: 439003390
     Time used: 13324ms
