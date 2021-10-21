@@ -11,12 +11,14 @@ namespace Problem01
 {
     class Program
     {
+        static Mutex mutex = new Mutex();
+        static Semaphore semaphoreObject = new Semaphore(initialCount: 1, maximumCount: 1, name: "semaphore");
         static List<Thread> threadLists = new List<Thread>();
         static int MAX = 1000000000;
-        static int threadSize = 32;
+        static int threadSize = 4;
         static int batchSize = MAX / threadSize;
         static byte[] Data_Global = new byte[MAX];
-        static long[] Sum_Global = new long[threadSize];
+        static long Sum_Global = 0;
         static int G_index = 0;
 
         static int ReadData()
@@ -41,52 +43,99 @@ namespace Problem01
 
             return returnData;
         }
-        static void makeThread() 
+        static void MakeThreadStart() 
         {
             for(int i = 0; i < threadSize; ++i)
             {
-                int tid = i;
                 int start = i * batchSize;
                 int stop = (i+1) * batchSize;
-                Thread newThread = new Thread(() => sum(start, stop, tid));
+                Thread newThread = new Thread(() => sum(start, stop));
                 newThread.Start();
                 threadLists.Add(newThread);
             }
             Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
         }
 
-        static void joinThread()
+        static void MakeThread()
+        {
+            for(int i = 0; i < threadSize; ++i)
+            {
+                int start = i * batchSize;
+                int stop = (i+1) * batchSize;
+                Thread newThread = new Thread(() => sum(start, stop));
+                threadLists.Add(newThread);
+            }
+            Console.WriteLine("\nCreate {0} threads.", threadLists.Count);
+        }
+
+        static void StartThread()
+        {
+            foreach(Thread t in threadLists)
+            {
+                t.Start();
+            }
+        }
+
+        static void JoinThread()
         {
             foreach(Thread t in threadLists)
             {
                 t.Join();
             }
         }
-        static void sum(int start, int stop, int tid)
+
+        static void MakeThreadPool()
         {
+            Console.WriteLine("\nCreate {0} threads.", threadSize);
+            using(CountdownEvent counter = new CountdownEvent(threadSize))
+            {
+                for(int i = 0; i < threadSize; ++i)
+                {
+                    int start = i * batchSize;
+                    int stop = (i+1) * batchSize;
+                    ThreadPool.QueueUserWorkItem(callBack => sumCallback(start, stop, counter));
+                }
+                counter.Wait();
+                Console.WriteLine("All threads finish execution.");
+            }
+        }
+
+        static void sum(int start, int stop)
+        {
+            long temp = 0;
             for (int index = start; index < stop; ++index)
             {
                 
                 if (Data_Global[index] % 2 == 0)
                 {
-                    Sum_Global[tid] -= Data_Global[index];
+                    temp -= Data_Global[index];
                 }
                 else if (Data_Global[index] % 3 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] * 2);
+                    temp += (Data_Global[index] * 2);
                 }
                 else if (Data_Global[index] % 5 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] / 2);
+                    temp += (Data_Global[index] / 2);
                 }
                 else if (Data_Global[index] % 7 == 0)
                 {
-                    Sum_Global[tid] += (Data_Global[index] / 3);
+                    temp += (Data_Global[index] / 3);
                 }
                 Data_Global[index] = 0;
                 //G_index++;
             }
+            semaphoreObject.WaitOne();
+            Sum_Global += temp;
+            semaphoreObject.Release();
         }
+
+        static void sumCallback(int start, int stop, CountdownEvent evt)
+        {
+            sum(start, stop);
+            evt.Signal();
+        }
+
         static void Main(string[] args)
         {
             Stopwatch sw = new Stopwatch();
@@ -104,31 +153,20 @@ namespace Problem01
                 Console.WriteLine("Read Failed!");
             }
 
-
             /* Start */
             Console.Write("\n\nWorking...");
             sw.Start();
             
-            //makeThread();
+            //makeThreadStart();
             //joinThread();
-            for(int i = 0; i < threadSize; ++i)
-            {
-                int tid = i;
-                int start = i * batchSize;
-                int stop = (i+1) * batchSize;
-                Thread newThread = new Thread(() => sum(start, stop, tid));
-                newThread.Start();
-                threadLists.Add(newThread);
-            }
-            foreach(Thread t in threadLists)
-            {
-                t.Join();
-            }
+            MakeThreadPool();
+
+
             sw.Stop();
             Console.WriteLine("Done.");
 
             /* Result */
-            Console.WriteLine("Summation result: {0}", Sum_Global.Sum());
+            Console.WriteLine("Summation result: {0}", Sum_Global);
             Console.WriteLine("Time used: " + sw.ElapsedMilliseconds.ToString() + "ms");
         }
     }
